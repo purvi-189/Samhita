@@ -247,6 +247,10 @@ contract samhitaToken is ERC20, Ownable {
         return tokenPrice;
     }
 
+    // function address() public view returns(address){
+    //      return 
+    // }
+
     // used to ensure that given value is converted to 96 bit unsigned int
     // n is unsigned int
     // value of n is less than 2**96. In other words, it ensures that the value

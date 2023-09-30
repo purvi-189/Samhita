@@ -13,12 +13,14 @@
 //   beforeEach(async function () {
 
 //     [admin, pendingAdmin, nonAdmin] = await ethers.getSigners();
-//     const MIN_DELAY = 600;
+//         const initialSupply = ethers.utils.parseUnits("1000", 18);
+
+//     // const MIN_DELAY = 600;
 //     Timelock = await ethers.getContractFactory("Timelock");
-//     timelock = await Timelock.connect(admin).deploy(600);
+//     timelock = await Timelock.connect(admin).deploy(660);
 
 //     const Token = await ethers.getContractFactory("samhitaToken");
-//     token = await Token.connect(admin).deploy();
+//     token = await Token.connect(admin).deploy(initialSupply);
 
 //     // const Samhita = await ethers.getContractFactory("Samhita");
 //     // samhita = await Samhita.connect(admin).deploy(timelock.address, token.address);

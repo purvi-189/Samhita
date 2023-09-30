@@ -32,11 +32,11 @@ describe("samhitaToken", function () {
   it("should transfer tokens between accounts", async function () {
     const amount = ethers.utils.parseUnits("100", 18);
     // Check user1's balance before the transfer
-    const user1BalanceBefore = await token.balanceOf(await user1.getAddress());
+    const user1BalanceBefore = await token.balanceOf(await user1.address);
     // Transfer tokens from admin to user1
-    // console.log(await token.balanceOf(await admin.getAddress()));
-    await token.connect(admin).transfer(await user1.getAddress(), amount);
-    const user1BalanceAfter = await token.balanceOf(await user1.getAddress());
+    // console.log(await token.balanceOf(await admin.address));
+    await token.connect(admin).transfer( user1.address, amount);
+    const user1BalanceAfter = await token.balanceOf(await user1.address);
     expect(user1BalanceAfter.sub(user1BalanceBefore)).to.equal(amount);
   });
 
@@ -46,16 +46,15 @@ describe("samhitaToken", function () {
 
     //approve user1 to spend tokens on behalf of admin
     await token.connect(admin).approve(user1.address, amount);
-
     // u1 transfer from admin to u2
     await token
       .connect(user1)
-      .transferFrom(admin.address, user2.getAddress(), amount);
-    //     // check u2 received
-    expect(await token.balanceOf(await user2.getAddress())).to.equal(amount);
-    //     // checking that both u1 and admin has 0 balance
+      .transferFrom(admin.address, user2.address, amount);
+        // check u2 received
+    expect(await token.balanceOf(await user2.address)).to.equal(amount);
+        // checking that both u1 and admin has 0 balance
     expect(
-      await token.allowance(await admin.getAddress(), await user1.getAddress())
+      await token.allowance(await admin.address, await user1.address)
     ).to.equal(0);
   });
 
@@ -65,17 +64,17 @@ describe("samhitaToken", function () {
     const allowance = ethers.utils.parseUnits("999", 18);
     console.log("--> ", await token.balanceOf(admin.address));
     // Approve user1 to spend tokens on behalf of admin with the smaller allowance
-    await token.connect(admin).approve(await user1.getAddress(), allowance);
+    await token.connect(admin).approve(await user1.address, allowance);
 
     // Try to transfer more tokens than the allowance
     await expect(
       token
         .connect(user1)
-        .transferFrom(admin.getAddress(), user2.getAddress(), allowance + 1)
+        .transferFrom(admin.address, user2.address, allowance + 1)
     ).to.be.revertedWith("ERC20: insufficient allowance");
 
     // Check that user2 didn't receive any tokens
-    expect(await token.balanceOf(await user2.getAddress())).to.equal(0);
+    expect(await token.balanceOf(await user2.address)).to.equal(0);
   });
 
   //  Transfer Tokens
@@ -84,18 +83,18 @@ describe("samhitaToken", function () {
     //approve user1 to spend tokens on behalf of admin
     await token.connect(admin).approve(user1.address, amount);
 
-    const adminInitBal = await token.balanceOf(admin.getAddress());
-    const user1InitBal = await token.balanceOf(user1.getAddress());
+    const adminInitBal = await token.balanceOf(admin.address);
+    const user1InitBal = await token.balanceOf(user1.address);
     // transferFrom : admin  to user1
     await token
       .connect(user1)
-      .transferFrom(admin.getAddress(), user2.getAddress(), amount);
+      .transferFrom(admin.address, user2.address, amount);
     //  checking new balance
 
-    expect(await token.balanceOf(admin.getAddress())).to.equal(
+    expect(await token.balanceOf(admin.address)).to.equal(
       "900000000000000000000"
     );
-    expect(await token.balanceOf(user2.getAddress())).to.equal(
+    expect(await token.balanceOf(user2.address)).to.equal(
       "100000000000000000000"
     );
   });
@@ -103,12 +102,12 @@ describe("samhitaToken", function () {
   /// -----> CURRENT VOTES
 
   it("should return zero for an acc that has no checkPoint", async function () {
-    const currVotes = await token.getCurrentVotes(await user2.getAddress());
+    const currVotes = await token.getCurrentVotes(await user2.address);
     expect(currVotes).to.equal(0);
   });
 
   it("Should return 0 votes for an acc with no voting power", async function () {
-    const currVotes = await token.getCurrentVotes(await user2.getAddress());
+    const currVotes = await token.getCurrentVotes(await user2.address);
     expect(currVotes).to.equal(0);
   });
 
@@ -124,17 +123,17 @@ describe("samhitaToken", function () {
   it("should transfer tokens using transferFrom ", async function () {
     const amount = ethers.utils.parseUnits("100", 18);
     //approve user1 to spend tokens on behalf of admin
-    await token.connect(admin).approve(user1.getAddress(), amount);
+    await token.connect(admin).approve(user1.address, amount);
     // u1 transfer from admin to u2
     await token
       .connect(user1)
-      .transferFrom(admin.getAddress(), await user2.getAddress(), amount);
+      .transferFrom(admin.address, await user2.address, amount);
     // check u2 received
-    expect(await token.balanceOf(user2.getAddress())).to.equal(amount);
+    expect(await token.balanceOf(user2.address)).to.equal(amount);
     // checking that both u1 and admin has 0 balance
-    expect(
-      await token.allowance(admin.getAddress(), await user1.getAddress())
-    ).to.equal(0);
+    expect(await token.allowance(admin.address, await user1.address)).to.equal(
+      0
+    );
   });
 
   // revert if transfer more tokens than allowance
@@ -143,17 +142,17 @@ describe("samhitaToken", function () {
     allowance = ethers.utils.parseUnits("999", 18);
 
     // Approve user1 to spend tokens on behalf of admin with the smaller allowance
-    await token.connect(admin).approve(user1.getAddress(), allowance);
+    await token.connect(admin).approve(user1.address, allowance);
 
     // Try to transfer more tokens than the allowance
     await expect(
       token
         .connect(user1)
-        .transferFrom(admin.getAddress(), user2.getAddress(), allowance + 1)
+        .transferFrom(admin.address, user2.address, allowance + 1)
     ).to.be.revertedWith("ERC20: insufficient allowance");
 
     // Check that user2 didn't receive any tokens
-    expect(await token.balanceOf(user2.getAddress())).to.equal(0);
+    expect(await token.balanceOf(user2.address)).to.equal(0);
   });
 
   //              // not alloww transfer from and to zero address
@@ -163,12 +162,12 @@ describe("samhitaToken", function () {
 
   //           //   // should not transfer from a 0 address to user1
   //           //   await expect(
-  //           //     token.connect(admin).transferTokens(ethers.constants.AddressZero, await user1.getAddress(), amount)
+  //           //     token.connect(admin).transferTokens(ethers.constants.AddressZero, await user1.address, amount)
   //           //   ).to.be.revertedWith("cannot transfer from 0 address");
 
   //           //   // not vice-versa
   //           //   await expect(
-  //           //       token.connect(admin).transferTokens( await user1.getAddress(),ethers.constants.AddressZero, amount)
+  //           //       token.connect(admin).transferTokens( await user1.address,ethers.constants.AddressZero, amount)
   //           //     ).to.be.revertedWith("cannot transfer to 0 address");
   //           // });
 
@@ -176,14 +175,14 @@ describe("samhitaToken", function () {
   //              const amount = ethers.utils.parseUnits("1000", 18);
 
   //   // Transfer tokens to user1 and delegate voting power
-  //      await token.connect(admin).transferFrom( admin.getAddress(),  user1.getAddress(), amount);
-  //      await token.connect(user1).delegate( user2.getAddress());
+  //      await token.connect(admin).transferFrom( admin.address,  user1.address, amount);
+  //      await token.connect(user1).delegate( user2.address);
 
   //         // Check the current votes for user1 (latest checkpoint)
-  //       const currVotes1 = await token.getCurrentVotes( user1.getAddress());
+  //       const currVotes1 = await token.getCurrentVotes( user1.address);
   //       expect(currVotes1).to.equal(0);
 
-  //       const currVotes2 = await token.getCurrentVotes( user2.getAddress());
+  //       const currVotes2 = await token.getCurrentVotes( user2.address);
   //       expect(currVotes2).to.equal(amount);
   //      });
 
@@ -195,7 +194,7 @@ describe("samhitaToken", function () {
 
     // Check the prior votes for an account before any checkpoints
     const priorVotes = await token.getPriorVotes(
-      await user1.getAddress(),
+      await user1.address,
       blockNumber - 1
     );
     expect(priorVotes).to.equal(0);
@@ -210,13 +209,13 @@ describe("samhitaToken", function () {
   //   ];
 
   //   // Transfer tokens to user1 and delegate voting power
-  //   await token.connect(admin).transferFrom(await admin.getAddress(), await user1.getAddress(), amount);
-  //   await token.connect(user1).delegate(await admin.getAddress());
+  //   await token.connect(admin).transferFrom(await admin.address, await user1.address, amount);
+  //   await token.connect(user1).delegate(await admin.address);
   //   const currentBlock = await ethers.provider.getBlockNumber();
   //   const historicalBlock = currentBlock - 1; // Use a block lower than the current block
 
   //   // Check the prior votes for user1 at the specified historical block
-  //   const priorVotes = await token.getPriorVotes(await user1.getAddress(), historicalBlock);
+  //   const priorVotes = await token.getPriorVotes(await user1.address, historicalBlock);
   //   const priorVotess = ethers.utils.parseEther(priorVotes);
   //   expect(priorVotess).to.equal(amount);
   // });
@@ -251,99 +250,102 @@ describe("samhitaToken", function () {
 
   it("should delegate voting power from admin to user", async function () {
     const initialBalance = ethers.utils.parseUnits("1000", 18);
-    // Transfer tokens to admin
-    await token.transfer(admin.getAddress(), initialBalance);
-    
-    // Delegate voting power from admin to delegate1
+
+    // Delegate voting power from admin to user1
     await token.connect(admin).delegate(user1.address);
 
     // Check the delegate of admin
     expect(await token.delegates(admin.address)).to.equal(user1.address);
-    
+
     // initial and updated voting power of user1
     expect(await token.getCurrentVotes(user1.address)).to.equal(initialBalance);
     expect(await token.getCurrentVotes(admin.address)).to.equal(0);
   });
 
- /* it("should move delegates from user1 to user2", async function () {
-    const initialBalance = ethers.utils.parseUnits("1000", 18);
-    // Transfer tokens to owner and delegate voting power to delegate1
-    await token.transfer(admin.getAddress(), initialBalance);
-    await token.connect(admin).delegate(user1.getAddress());
-    
-    // Move delegates from delegate1 to delegate2
-    await token.connect(admin).moveDelegates(user1.getAddress(), user2.getAddress(), initialBalance);
-
-    // Check the delegate of owner and delegate2
-    expect(await token.delegates(admin.getAddress()) ).to.equal(user1.getAddress());
-    expect(await token.delegates(user1.getAddress()) ).to.equal(user2.getAddress());
-
-    // Check the initial and updated voting power of delegate1 and delegate2
-    expect(await token.getCurrentVotes(user1.getAddress())).to.equal(0);
-    expect(await token.getCurrentVotes(user2.getAddress())).to.equal(initialBalance);
-
-  });   */
-
-  it("should delegate voting power and  update delegaates ", async function () {
-    const amount = ethers.utils.parseUnits("1000", 18);
+  it("should move delegates from user1 to user2", async function () {
+    const amount = ethers.utils.parseUnits("100", 18);
     //approve user1 to spend tokens on behalf of admin
     await token.connect(admin).approve(user1.address, amount);
-
+    // u1 transfer from admin to u2
     await token
       .connect(user1)
-      .transferFrom(admin.getAddress(), user1.getAddress(), amount);
+      .transferFrom(admin.address, user1.address, amount);
+    //   console.log("u1", await token.balanceOf(user1.address));   // 100
 
-    // Delegate voting power from user1 to admin
-    await token.connect(user1).delegate(await user2.getAddress());
-
-    // // Check the delegate of user1
-    // const user1Delegate = await token.delegates(await user1.getAddress());
-    // expect(user1Delegate).to.equal( user2.getAddress());
-
-    // const user1Votes = await token.getCurrentVotes(await user1.getAddress());
-    // const user2Votes = await token.getCurrentVotes(await user2.getAddress());
-
-    // expect(user1Votes).to.equal(0);
-    // expect(user2Votes).to.equal(amount);
-  });
-
-
-          it("Should emit DelegateChanged event and update delegates", async function () {
-               const amount = ethers.utils.parseUnits("1000", 18);
-               await token.connect(admin).transferFrom( admin.getAddress(),  user1.getAddress(), amount);
-
-               // Delegate voting power from user1 to user2
-              const tx = await token.connect(user1).delegate( user2.getAddress() );
-
-            //              // Expect DelegateChanged event to be emitted
-            //    await expect(tx).to.emit(token, "DelegateChanged").withArgs(await user1.getAddress(), ethers.constants.AddressZero, await user2.getAddress());
-            //           // Checking the delegate of user1
-            //   const user1Delegate = await token.delegates(await user1.getAddress());
-            // expect(user1Delegate).to.equal(await user2.getAddress());
-      });
-
-//           /// CHECKPOINT
-
-/* it("Should create an intermediate checkpoint if the last checkpoint is before the current block", async function () {
-    const amount = ethers.utils.parseUnits("1000", 18);
+    await token.delegate(user2.address);
+    console.log("b", await token.balanceOf(user2.address));
     
-    // Transfer tokens to user1 and delegate voting power
-    await token.connect(admin).transferTokens(await admin.getAddress(), await user1.getAddress(), amount);
-    await token.connect(user1).delegate(await admin.getAddress());
-
-    const blockNum  = await ethers.provider.getBlockNumber();
-    // Move forward to a new block
-    await ethers.provider.send("evm_mine");
-
-    // Write a new checkpoint for user1 after moving to a new block
-    await token.connect(admin).writeCheckpoint(await user1.getAddress(), 2, amount, amount * 2);
-
-    // Check the new checkpoint for use
-
-    const user1Checkpoints = await token.checkpoints(await user1.getAddress(), 1);
-    expect(user1Checkpoints.fromBlock).to.equal(blockNumber + 1);
-    expect(user1Checkpoints.votes).to.equal(amount);
-
-    });  */
-
   });
+
+//   it("should move delegates from user1 to user2 using move delegates", async function () {
+//     // Mint 100 tokens to user1 and set user1 as delegate for some votes
+//     const amount = ethers.utils.parseUnits("100", 18);
+//     await token.connect(admin).approve(user1.address, amount);
+//     // u1 transfer from admin to u2
+//     await token
+//       .connect(user1)
+//       .transferFrom(admin.address, user1.address, amount);
+//           await token.connect(user1).delegate(user1.address);
+
+//     // Check user1's voting power before the move
+//     const user1InitVotes = await token.getCurrentVotes(user1.address);
+
+//     // Perform the delegate transfer from user1 to user2
+//     await token.connect(user1).moveDelegates(user1.address, user2.address, amount);
+
+//     // Check user1's voting power after the move
+//     const user1FinalVotes = await token.getCurrentVotes(user1.address);
+
+//     // Check user2's voting power after the move
+//     const user2FinalVotes = await token.getCurrentVotes(user2.address);
+
+//     // Ensure that user1's voting power has decreased
+//     expect(user1FinalVotes).to.be.lt(user1InitVotes);
+
+//     // Ensure that user2's voting power has increased
+//     expect(user2FinalVotes).to.be.gt(0);
+//   });
+
+//     it("should delegate voting power and update delegates", async function () {
+//       const currentDelegate = await token.delegate(admin.address );
+//       const currentDelegateeVotes = await token.getCurrentVotes(user1.address );
+
+//       // Delegate voting power to user1
+//       await token.connect(admin).delegate(user1.address );
+
+//       const newDelegate = await token.delegate(user1.address );
+//       console.log("new");
+//       console.log(newDelegate);
+//       const delegateeVotes = await token.getCurrentVotes(user1.address);
+//       console.log(delegateeVotes);
+
+//       expect(newDelegate).to.equal(user1.address, "Delegate should be updated");
+//       expect(delegateeVotes).to.be.gt(currentDelegateeVotes, "user1 votes should increase");
+//   });
+
+   
+
+            /// CHECKPOINT
+
+//    it("Should create an intermediate checkpoint if the last checkpoint is before the current block", async function () {
+//     const amount = ethers.utils.parseUnits("1000", 18);
+    
+//     // Transfer tokens to user1 and delegate voting power
+//     await token.connect(admin).transferTokens(await admin.address, await user1.address, amount);
+//     await token.connect(user1).delegate(await admin.address);
+
+//     const blockNum  = await ethers.provider.getBlockNumber();
+//     // Move forward to a new block
+//     await ethers.provider.send("evm_mine");
+
+//     // Write a new checkpoint for user1 after moving to a new block
+//     await token.connect(admin).writeCheckpoint(await user1.address, 2, amount, amount * 2);
+
+//     // Check the new checkpoint for use
+
+//     const user1Checkpoints = await token.checkpoints(await user1.address, 1);
+//     expect(user1Checkpoints.fromBlock).to.equal(blockNumber + 1);
+//     expect(user1Checkpoints.votes).to.equal(amount);
+
+//     });  
+});
