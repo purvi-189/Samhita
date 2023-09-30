@@ -2,8 +2,6 @@
     pragma solidity ^0.8.19;
     import "hardhat/console.sol";
 
-    // require('hardhat/console');
-
     library SafeMath {
 
         function add(uint256 a, uint256 b) internal pure returns (uint256) {
@@ -120,7 +118,8 @@
         }
 
         function queueTransaction(address target, uint value, string memory signature, bytes memory data, uint eta) public returns (bytes32) {
-         require(temp_sender == admin,"Call must come from admin.");
+            // console.log(msg.sender);  //0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+         require(msg.sender == admin,"Call must come from admin.");
 
          require(eta >= getBlockTimestamp().add(delay),"Estimated execution block must satisfy delay.");
             bytes32 txHash = keccak256(abi.encode(target, value, signature, data, eta));
@@ -131,14 +130,15 @@
         }
 
         function cancelTransaction(address target, uint value, string memory signature, bytes memory data, uint eta) public {
-            require(temp_sender == admin, "Call must come from admin.");
+            require(msg.sender == admin, "Call must come from admin.");
+           
             bytes32 txHash = keccak256(abi.encode(target, value, signature, data, eta));
             queuedTransactions[txHash] = false;
             emit CancelTransaction(txHash, target, value, signature, data, eta);
         }
 
         function executeTransaction(address target, uint value, string memory signature, bytes memory data, uint eta) public payable returns (bytes memory) {
-            require(temp_sender== admin, "Call must come from admin.");
+            require(msg.sender == admin, "Call must come from admin.");
             bytes32 txHash = keccak256(abi.encode(target, value, signature, data, eta));
             
             require(queuedTransactions[txHash], "Transaction hasn't been queued.");

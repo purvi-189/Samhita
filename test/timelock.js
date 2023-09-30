@@ -1,6 +1,5 @@
 // const { expect } = require('chai');
-// const { ethers, upgrades, waffle } = require('hardhat');
-// // const { deployContract } = waffle;
+// const { ethers, upgrades } = require('hardhat');
 
 // describe('Timelock', function () {
 //   let Timelock;
@@ -51,8 +50,8 @@
 //     // it('Should set admin when acceptAdmin is called by pendingAdmin', async function () {
 //     //   await timelock.connect(pendingAdmin).acceptAdmin();
   
-//     // await expect( timelock.admin(admin)).to.equal(pendingAdmin.address);
-//     // await expect( timelock.pendingAdmin()).to.equal(ethers.constants.AddressZero);
+//     //  expect( await timelock.admin(admin)).to.equal(pendingAdmin.address);
+//     //  expect(await  timelock.pendingAdmin()).to.equal(ethers.constants.AddressZero);
 //     // });
 
 //     //   it('Should revert when acceptAdmin is called by a non-pendingAdmin', async function () {
@@ -61,7 +60,7 @@
 //     //     });
 
 
-//     //    //  1) admin and valid time
+//        //  1) admin and valid time
 //   it('should  queue trans when called by admin', async function(){
 
 //     const signature = "executeProposal(uint256)"; // Function signature
@@ -69,7 +68,7 @@
 //     currTime = await timelock.getBlockTimestamp();
 
 //     const eta = currTime.add(12*60); 
-//     await expect(await timelock.connect(admin).queueTransaction( token.address, 0 , signature, data, eta)  );
+//      expect(await timelock.connect(admin).queueTransaction( token.address, 0 , signature, data, eta)  );
  
 // });
 
@@ -109,15 +108,16 @@
 //       expect(await timelock.connect(admin).queueTransaction(token.address , 0 , signature, data, eta)).to.be.revertedWith("Call must come from admin.") ;
 //       })
 
-//     it('Estimated execution block must satisfy delay', async function(){
+//     // it('Estimated execution block must satisfy delay', async function(){
 
-//         const signature = "executeProposal(uint256)"; // Function signature
-//         const data = ethers.utils.defaultAbiCoder.encode(['uint256'],[42]); 
-//         currTime = await timelock.getBlockTimestamp();
-//         const eta = currTime.add(11*60); 
-//         expect(await timelock.connect(admin).queueTransaction(token.address , 0 , signature, data, eta) ).to.be.revertedWith('Estimated execution block must satisfy delay');
-//     });
+//     //     const signature = "executeProposal(uint256)"; // Function signature
+//     //     const data = ethers.utils.defaultAbiCoder.encode(['uint256'],[42]); 
+//     //     currTime = await timelock.getBlockTimestamp();
+//     //     const eta = currTime.add(601); 
+//     //     expect(await timelock.connect(admin).queueTransaction(token.address , 0 , signature, data, eta) ).to.be.revertedWith('Estimated execution block must satisfy delay');
+//     // });
 
+   
 //       //-------------> CANCEL TRANS
 //     it("should cancel queued trans when called by admin", async function(){
 //         // adding trans to queue 
@@ -176,7 +176,7 @@
 //         });
 
             
-//       it("should revert when trans is not queued", async function(){
+//       it("should revert trans is not queued", async function(){
 
 //         currTime = await timelock.getBlockTimestamp();
 //         const eta = currTime.add(12*60); 
