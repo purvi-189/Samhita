@@ -6,7 +6,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract samhitaToken is ERC20, Ownable {
     address public admin;
-    uint256 tokenPrice = 1000000000000; // 0.000001 ETH
+    uint256 tokenPrice = 100000000000000; // 0.0001 ETH
+    
     // token balances for each account
     mapping(address => uint96) internal balances;
     mapping(address => address) public delegates;
@@ -200,7 +201,7 @@ contract samhitaToken is ERC20, Ownable {
         }
     }
 
-    //  when change in voting power
+    // serves the purpose of recording changes in the voting power
     function writeCheckpoint(
         address delegatee,
         uint32 nCheckpoints,
@@ -246,10 +247,6 @@ contract samhitaToken is ERC20, Ownable {
     function getTokenPrice() public view returns (uint) {
         return tokenPrice;
     }
-
-    // function address() public view returns(address){
-    //      return 
-    // }
 
     // used to ensure that given value is converted to 96 bit unsigned int
     // n is unsigned int
@@ -297,4 +294,5 @@ contract samhitaToken is ERC20, Ownable {
         }
         return chainId;
     }
+    
 }

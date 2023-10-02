@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-interface ISamhitaToken {
+interface ISamhitaToken is IERC20{
     struct Proposal{
          uint256 id;
         address creator;
@@ -29,12 +28,14 @@ interface ISamhitaToken {
         bool support;
         uint96 votes;
     }
-
+      function getCurrentVotes(address account) external view returns (uint96);
     function getPriorVotes(address account, uint256 blockNumber) external view  returns (uint96);
+    function delegate(address to) external payable;
+     function delegateTransfer(address from, address to) external;
+    function moveDelegates(address srcRep, address destRep, uint96 amt) external;
+     function writeCheckpoint(address delegatee,uint32 nCheckpoints,uint96 oldVotes,uint96 newVotes) external; 
+     function setTokenprice(uint _tokenPrice) external; 
     function getTokenPrice() external view returns (uint256);
-    function balanceOf(address account) external view returns (uint256);
-    function transfer(address dst, uint96 rawAmount) external payable returns (bool);
-    function transferFrom(address src, address dest, uint96 rawAmount) payable external returns (bool);
     function getAllProposals() external view returns (Proposal[] memory) ;
      function getAllTemplates() external view returns (Proposal[] memory);
 }   

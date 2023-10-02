@@ -130,7 +130,7 @@ contract Samhita {
             allDaoMemberAddress.push(msg.sender);
             isMemberAdded[msg.sender] = true;
         }
-        token.transfer(msg.sender, (_tokens * 10 ** 18));
+        token.transfer(msg.sender, _tokens);
     }
 
     function propose(
@@ -163,7 +163,7 @@ contract Samhita {
         );
         require(targets.length != 0, "some action must be there");
         require(targets.length <= proposalMaxOperations(), "too many actions");
-        token.transferFrom(msg.sender, address(this), proposalStake);
+        token.transfer(address(this), proposalStake);
         // retrives latest proposalid submitted by msg.sender
         uint256 latestProposalId = latestProposalIds[msg.sender];
         if (latestProposalId != 0) {
