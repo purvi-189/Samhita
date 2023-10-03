@@ -1,107 +1,5 @@
 
-
-//   // start
-
-
-//       console.log("++++ NFT +++++");
-
-//       const isRcd = await samhita.receivedTemplateNFT[proposer.address];
-//       console.log("YOOOO", isRcd);
-  
-      
-//     const final2 = await ethers.provider.getBalance(samhita.address);
-//     console.log("----->After creating proposal stake added: ",final2);
-
-//     const receipt = await transx.wait();
-//     expect(await token.balanceOf(samhita.address)).to.equal(
-//       "11000000000000000000"
-//     );
-//        // create proposal with incorrect stake amount
-//        await expect(samhita
-//         .connect(proposer).propose(
-//           ["0x683E7C7cD4DD8a93D921Efe53E075b21cd58D271"],
-//           [0],
-//           ["execute(uint)"],
-//           [ethers.utils.defaultAbiCoder.encode(["uint256"], [42])],
-//           "Proposal of samhita DAO",
-//           "template",
-//           "bafybeifrwhe5h22blc33rgvcktxe3wedjq467caia23ce7toal4tym2doy",
-//           { value: 0 }
-//         ) ).to.be.revertedWith("You must have valid stake amount to create a proposal") ;
-  
-//         // not a member of samhita DAO
-//       await expect(samhita
-//         .connect(voter5).propose(
-//           ["0x683E7C7cD4DD8a93D921Efe53E075b21cd58D271"],
-//           [0],
-//           ["execute(uint)"],
-//           [ethers.utils.defaultAbiCoder.encode(["uint256"], [42])],
-//           "Proposal of samhita DAO",
-//           "template",
-//           "bafybeifrwhe5h22blc33rgvcktxe3wedjq467caia23ce7toal4tym2doy",
-//           { value: stakeAmount }
-//         ) ).to.be. revertedWith("You are not the member of ths Samhita DAO");
-  
-//           // arity mismatch
-//           await expect(samhita
-//             .connect(proposer).propose(
-//               ["0x683E7C7cD4DD8a93D921Efe53E075b21cd58D271"],
-//               [],
-//               ["execute(uint)"],
-//               [ethers.utils.defaultAbiCoder.encode(["uint256"], [42])],
-//               "Proposal of samhita DAO",
-//               "template",
-//               "bafybeifrwhe5h22blc33rgvcktxe3wedjq467caia23ce7toal4tym2doy",
-//               { value: stakeAmount }
-//             )) .to.be.revertedWith("proposal function information arity mismatch");
-
-//         //some action must be there
-
-//         await expect(samhita
-//           .connect(proposer).propose(
-//             [], [], [], [], 
-//             "Proposal of samhita DAO",
-//             "template",
-//             "bafybeifrwhe5h22blc33rgvcktxe3wedjq467caia23ce7toal4tym2doy",
-//             { value: stakeAmount }
-
-//           )).to.be.revertedWith('some action must be there');
-          
-//         // too many actions
-//         await expect(samhita.connect(proposer).propose(
-//           Array.from({ length: 11 }, (_, i) => `0x683E7C7cD4DD8a93D921Efe53E075b21cd58D271`) , // Array of addresses
-//           Array(11).fill(0), // Array of values
-//          Array.from({ length: 11 }, (_, i) => `execute(uint)`), // Array of signatures
-//         Array(11).fill(
-//             ethers.utils.defaultAbiCoder.encode(["string"], ["Proposal to transfer tokens to an address"])  )  ,
-//           "Proposal of samhita DAO",
-//           "template",
-//           "bafybeifrwhe5h22blc33rgvcktxe3wedjq467caia23ce7toal4tym2doy",
-//           { value: stakeAmount }
-//         )).to.be.revertedWith("too many actions") ;
-
-//         // await expect(
-//         //   samhita
-//         //     .connect(proposer)
-//         //     .propose(
-//         //       ["0x683E7C7cD4DD8a93D921Efe53E075b21cd58D271"],
-//         //       [0],
-//         //       ["execute(uint)"],
-//         //       [ethers.utils.defaultAbiCoder.encode(["uint256"], [42])],
-//         //       "New Proposal",
-//         //       "category",
-//         //       "proposalFile",
-//         //       { value: stakeAmount }
-//         //     )
-//         // ).to.be.revertedWith("Found an already active proposal");
-
    
-//     // queue a proposal ------------------------------------------------------------------------------------
-//     const proposal = await samhita.proposals(1);
-//     const proposalId =  (await samhita.proposals(1)).id.toNumber() ;
-//     console.log("proposal ID: ", proposalId);
-//     console.log("state after creating prop- Active: ", await samhita.state(proposal.id));
-
 //   ///---------------queue------------------------------------------------
 //     // waiting for 1 block to pass before voting 
 //     await ethers.provider.send("evm_mine");
@@ -141,9 +39,7 @@
 
 //         }
 
-//          catch(error) {
-//           console.error("An error occurred during voting:", error);
-//         }  
+//         
   
 //     ///-------END-----
 //     });

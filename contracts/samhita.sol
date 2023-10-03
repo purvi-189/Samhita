@@ -58,7 +58,6 @@ contract Samhita {
         string description;
         string proposalFile;
         string category;
-        bool isScrape; // true ==> scrape else its datacraft
     }
 
     mapping(uint256 => mapping(address => Receipt)) public proposalReceipts;
@@ -156,8 +155,8 @@ contract Samhita {
         string memory title,
         string memory description,
         string memory proposalFile,
-        string memory category, 
-        bool _isScrape
+        string memory category
+
     ) public payable returns (uint256) {
         require(
             isMemberAdded[msg.sender],
@@ -219,9 +218,9 @@ contract Samhita {
             title,
             description,
             proposalFile,
-            category, 
-            _isScrape
+            category 
         );
+
         latestProposalIds[msg.sender] = proposalCount;
         memberProposals[msg.sender] += 1;
         emit ProposalCreated(
@@ -267,8 +266,6 @@ contract Samhita {
         }
         //record timestamp at which prop can be executed
         proposal.eta = eta;
-
-        token.transfer(proposals[_proposalId].creator, proposalStake);
 
         // Template NFT -- if proposal is approved ; means succeeded
         //    mint NFT as proposal is succeed
