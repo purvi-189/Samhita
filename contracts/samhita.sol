@@ -37,21 +37,28 @@ contract Samhita {
 
     struct Proposal {
         uint256 id;
-        address creator;
         uint256 eta;
+        uint256 startBlock;
+        uint256 endBlock;
+        address creator;
         address[] targets; // list of add for calls to be made
         uint256[] values;
         string[] signatures;
         bytes[] calldatas;
-        uint256 startBlock;
-        uint256 endBlock;
-        uint256 forVotes;
-        uint256 againstVotes;
         bool cancel;
         bool executed;
-        bool isScrape; // true ==> scrape else its datacraft
-        string category; // template , governance, finance
+    }
+
+    struct ProposalBasicData {
+        uint256 id;
+        address creator;
+        uint256 forVotes;
+        uint256 againstVotes;
+        string title;
+        string description;
         string proposalFile;
+        string category;
+        bool isScrape; // true ==> scrape else its datacraft
     }
 
     mapping(uint256 => mapping(address => Receipt)) public proposalReceipts;
@@ -74,6 +81,7 @@ contract Samhita {
     }
 
     mapping(uint256 => Proposal) public proposals;
+    mapping(uint256 => ProposalBasicData) public proposalsBasicData;
     mapping(address => uint256) public latestProposalIds;
     mapping(address => uint256) public memberWithdrawAmount;
     mapping(uint256 => address) public proposalToNFTOwner; // mapping for NFT owner if proposal succeeded
@@ -88,9 +96,9 @@ contract Samhita {
         uint256[] values,
         string[] signatures,
         bytes[] calldatas,
+        string title,
         uint256 startBlock,
-        uint256 endBlock,
-        string description
+        uint256 endBlock
     );
     event VoteCast(
         address voter,
@@ -145,9 +153,11 @@ contract Samhita {
         uint256[] memory values,
         string[] memory signatures,
         bytes[] memory calldatas,
+        string memory title,
         string memory description,
-        string memory category,
-        string memory proposalFile
+        string memory proposalFile,
+        string memory category, 
+        bool _isScrape
     ) public payable returns (uint256) {
         require(
             isMemberAdded[msg.sender],
@@ -190,21 +200,27 @@ contract Samhita {
         proposalCount++;
         proposals[proposalCount] = Proposal(
             proposalCount,
-            msg.sender,
             0,
+            startBlock,
+            endBlock,
+            msg.sender,
             targets,
             values,
             signatures,
             calldatas,
-            startBlock,
-            endBlock,
+            false,
+            false
+        );
+        proposalsBasicData[proposalCount] = ProposalBasicData(
+            proposalCount,
+            msg.sender,
             0,
             0,
-            false,
-            false,
-            false,
-            category,
-            proposalFile
+            title,
+            description,
+            proposalFile,
+            category, 
+            _isScrape
         );
         latestProposalIds[msg.sender] = proposalCount;
         memberProposals[msg.sender] += 1;
@@ -215,9 +231,9 @@ contract Samhita {
             values,
             signatures,
             calldatas,
+            title,
             startBlock,
-            endBlock,
-            description
+            endBlock
         );
         return proposalCount;
     }
@@ -228,13 +244,8 @@ contract Samhita {
             state(_proposalId) == ProposalState.Succeeded,
             "proposal can only be queued if it is succeeded"
         );
-        require(
-            keccak256(abi.encodePacked(proposals[_proposalId].category)) ==
-                keccak256(abi.encodePacked("template")),
-            "Not a template proposal"
-        );
 
-        memberWithdrawAmount[proposals[_proposalId].creator] += proposalStake;
+      memberWithdrawAmount[proposals[_proposalId].creator] += proposalStake;
 
         // Store the NFT owner in the mapping
         proposalToNFTOwner[_proposalId] = proposals[_proposalId].creator;
@@ -261,11 +272,17 @@ contract Samhita {
 
         // Template NFT -- if proposal is approved ; means succeeded
         //    mint NFT as proposal is succeed
-        templateNFT.mintTemplate(
-            proposals[_proposalId].creator,
-            proposals[_proposalId].proposalFile,
-            _proposalId
-        );
+        if (
+            keccak256(
+                abi.encodePacked(proposalsBasicData[_proposalId].category)
+            ) == keccak256(abi.encodePacked("template"))
+        ) {
+            templateNFT.mintTemplate(
+                proposals[_proposalId].creator,
+                proposalsBasicData[_proposalId].proposalFile,
+                _proposalId
+            );
+        }
         emit ProposalQueued(_proposalId, eta);
     }
 
@@ -348,8 +365,8 @@ contract Samhita {
         } else if (block.number <= proposal.endBlock) {
             return ProposalState.Active;
         } else if (
-            proposal.forVotes <= proposal.againstVotes ||
-            proposal.forVotes < quorumVotes()
+            proposalsBasicData[_proposalId].forVotes <= proposalsBasicData[_proposalId].againstVotes ||
+            proposalsBasicData[_proposalId].forVotes < quorumVotes()
         ) {
             return ProposalState.Defeated;
         } else if (proposal.eta == 0) {
@@ -385,9 +402,9 @@ contract Samhita {
         uint96 votes = token.getPriorVotes(voter, proposal.startBlock);
 
         if (support) {
-            proposal.forVotes = add256(proposal.forVotes, votes);
+            proposalsBasicData[_proposalId].forVotes = add256(proposalsBasicData[ _proposalId].forVotes, votes);
         } else {
-            proposal.againstVotes = add256(proposal.againstVotes, votes);
+            proposalsBasicData[ _proposalId].againstVotes = add256( proposalsBasicData[ _proposalId].againstVotes, votes);
         }
         receipt.hasVoted = true;
         receipt.support = support;
@@ -402,8 +419,8 @@ contract Samhita {
             proposalId > 0 && proposalId <= proposalCount,
             "Invalid proposal ID"
         );
-        console.log(proposals[proposalId].forVotes);
-        return proposals[proposalId].forVotes;
+        console.log( proposalsBasicData[proposalId ].forVotes);
+        return proposalsBasicData[proposalId].forVotes;
     }
 
     // function getAllTemplates() public view returns (Proposal[] memory) {

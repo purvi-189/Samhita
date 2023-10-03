@@ -43,7 +43,7 @@ contract TemplateNFT is ERC721, ERC721URIStorage, Ownable {
     mapping(address => uint[]) public userTomemberNFTs;
     mapping(uint => memberData) public memberIdTomemberData;
 
-    address samhitaAddress;
+    address public samhitaAddress;
 
     function safeMint(address to, uint256 tokenId, string memory uri) public {
         _safeMint(to, tokenId);
@@ -138,6 +138,10 @@ contract TemplateNFT is ERC721, ERC721URIStorage, Ownable {
         uint _templateId
     ) public view returns (address) {
         return idToTemplateData[_templateId].creator;
+    }
+
+    function getCreatorNFTs(address _user) public view returns (uint[] memory) {
+        return userTocreatorNFTs[_user];
     }
 
     // Override supportsInterface to specify which base contract's function to use

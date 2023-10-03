@@ -39,15 +39,15 @@ describe("Samhita", function () {
     // time lock contract
     const Timelock = await ethers.getContractFactory("Timelock");
     timelock = await Timelock.connect(admin).deploy(MIN_DELAY);
-
+    await timelock.deployed()
     // token contract
     const Token = await ethers.getContractFactory("samhitaToken");
     token = await Token.connect(admin).deploy("1000");
-
+    
     // template nft contract
     const TemplateNFT = await ethers.getContractFactory("TemplateNFT");
     templateNFT = await TemplateNFT.deploy();
-    templateNFT = await templateNFT.deployed();
+    await templateNFT.deployed();
 
     // samhita contract
     const Samhita = await ethers.getContractFactory("Samhita");
@@ -64,7 +64,6 @@ describe("Samhita", function () {
       admin
     );
 
-    // tokenPrice = ethers.utils.parseUnits("0.001", 18); // Assuming tokenPrice is 0.001 ETH
   });
 
   it("should return correct quorumVotes value", async function () {
@@ -170,6 +169,7 @@ describe("Samhita", function () {
     const stakeAmount = await samhita.proposalStake();
     // approve tokens
     await token.connect(proposer).approve(samhita.address, stakeAmount);
+    // const title = "My Proposal Title";
 
       await expect(
         samhita.connect(proposer).propose(
@@ -177,15 +177,18 @@ describe("Samhita", function () {
             [0],
             ["execute(uint)"],
             [ethers.utils.defaultAbiCoder.encode(["uint256"], [42])],
+            "My Proposal Title",
             "Proposal of samhita DAO",
-            "template",
             "bafybeifrwhe5h22blc33rgvcktxe3wedjq467caia23ce7toal4tym2doy",
+            "template",
+            false,
             { value: stakeAmount }
           )
       ).to.be.revertedWith("proposer votes below proposal threshold");
 
     // delegate votes
     await token.delegate(proposer.address);
+
     console.log("Samhita contract balance after propose:", await ethers.provider.getBalance(samhita.address) );
     const propBalance = await ethers.provider.getBalance(proposer.address);
     console.log("proposer eth balance: ", propBalance);
@@ -196,20 +199,22 @@ describe("Samhita", function () {
         [0],
         ["execute(uint)"],
         [ethers.utils.defaultAbiCoder.encode(["uint256"], [42])],
+        "My Proposal Title",
         "Proposal of samhita DAO",
-        "template",
         "bafybeifrwhe5h22blc33rgvcktxe3wedjq467caia23ce7toal4tym2doy",
+        "template",
+        false,
         { value: stakeAmount }
       );
-
+  
       await transx.wait();
+      // console.log("3456: ",proposalId);
       console.log("proposal created...!");
       const propBalanceAfter = await ethers.provider.getBalance(proposer.address);
       console.log("proposer eth balance after (stake deducted): ", propBalanceAfter);
 
-    //   console.log("balance aftre stake:");
-    //   console.log(await ethers.provider.getBalance(proposer.address));
-      // console.log(transx);
-      // console.log("proposal created.....");
+      // expect(proposer.address).to
+        const creatorNfts = (await templateNFT.getCreatorNFTs(admin.address))
+        console.log(await templateNFT.creatorIdTocreatorData(creatorNfts[0]))
   });
 });
