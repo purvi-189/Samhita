@@ -54,7 +54,7 @@ describe("Samhita", function () {
     samhita = await Samhita.connect(admin).deploy(
       timelock.address,
       token.address,
-      templateNFT.address
+      templateNFT.address, "ipfs uri link"
     );
 
     await samhita.deployed();
@@ -65,20 +65,21 @@ describe("Samhita", function () {
     );
 
     // tokenPrice = ethers.utils.parseUnits("0.001", 18); // Assuming tokenPrice is 0.001 ETH
-
   });
 
   it("should return correct quorumVotes value", async function () {
-    console.log("admin ETH balance: ",await ethers.provider.getBalance(admin.address) );
-
-    // console.log("Timelock: " + timelock.address);
-    // console.log("samhitaToken: " + token.address);
-    // console.log("Samhita: " + samhita.address);
+    console.log(
+      "admin ETH balance: ",
+      await ethers.provider.getBalance(admin.address)
+    );
+    console.log("first test");
+    console.log("Timelock: " + timelock.address);
+    console.log("samhitaToken: " + token.address);
+    console.log("Samhita: " + samhita.address);
     console.log("template nft: ", templateNFT.address);
     console.log(admin.address);
     const quorum = await samhita.quorumVotes();
     expect(quorum).to.equal(40);
-
   });
 
   it("should return correct proposalMaxOperations value", async function () {
@@ -99,88 +100,116 @@ describe("Samhita", function () {
     expect(await token.balanceOf(samhita.address)).to.equal("100");
   });
 
-    it("should add a member to the samhita DAO", async function () {
-    const finalO = await ethers.provider.getBalance(proposer.address);
-    console.log("ORIGINAL: ",finalO);
+  // start
+  it("should add a member to the samhita DAO", async function () {
+    const propB = await ethers.provider.getBalance(proposer.address);
+    console.log("proposer eth balance: ", propB);
     const tokenPrice = await token.getTokenPrice();
-    const initialContractBalance = await ethers.provider.getBalance(samhita.address);
-    console.log("----- init contract balance: ",initialContractBalance);
-    await token.connect(admin).approve(proposer.address, "100000000000000000000"); // 100 eth
+    const initialContractBalance = await ethers.provider.getBalance(
+      samhita.address
+    );
+    console.log("-----> initial contract balance: ", initialContractBalance);
 
     await expect(
-      samhita.connect(proposer).addMember(10, {
-        value: ethers.utils.parseEther(String((10 * tokenPrice) / 10 ** 18)),
+      samhita.connect(proposer).addMember(2000, {
+        value: ethers.utils.parseEther(String((2000 * tokenPrice) / 10 ** 18)),
       })
     ).to.be.revertedWith("Contract does not have enough samhitaTokens");
 
-    // // transfer tokens to the contract  -- 100 
-    const tx = await token
-      .connect(admin)
-      .transfer(samhita.address, "100");
+    // transfer tokens to the contract  -- 1000
+    const tx = await token.connect(admin).transfer(samhita.address, "1000");
     await tx.wait();
-    console.log("contract tokens: ", await token.balanceOf(samhita.address));
-
+    console.log(
+      "samhita contract tokens: ",
+      await token.balanceOf(samhita.address)
+    );
 
     await expect(
-        samhita.connect(proposer).addMember(6, {
-          value: 6 * (tokenPrice),
-        })
-      ).to.be.revertedWith(
-        "You must purchase at least 10 tokens to become a member" );
+      samhita.connect(proposer).addMember(6, {
+        value: 6 * tokenPrice,
+      })
+    ).to.be.revertedWith(
+      "You must purchase at least 10 tokens to become a member"
+    );
 
-       const tx_ = await samhita.connect(proposer).addMember(20, {
-            value: 20 * (tokenPrice),
-          });
+    const tx_ = await samhita.connect(proposer).addMember(20, {
+      value: 20 * tokenPrice,
+    });
     console.log("proposer tokens: ", await token.balanceOf(proposer.address));
 
-    
-        // await samhita.connect(voter1).addMember(15, {
-        //   value: ethers.utils.parseEther(String((15 * tokenPrice) / 10 ** 18)),
-        // });
-    
-      // expect(await samhita.connect(proposer).addMember(22, {value: 22 * (tokenPrice), }) );
-      
-    // await expect(samhita.connect(voter1).addMember(15, {value: 15 * (tokenPrice), }) );
-    // await token.writeCheckpoint(voter1.address, 0, 0, 15 ) ;
-
-    // await expect(samhita.connect(voter2).addMember(20, {value: 20 * (tokenPrice), }) );
-    // await token.writeCheckpoint(voter2.address, 0, 0, 20 ) ;
-
-    // await expect(samhita.connect(voter3).addMember(18, {value: 18 * (tokenPrice), }) );
-    // await token.writeCheckpoint(voter3.address, 0, 0, 18 ) ;
-
-    // await expect(samhita.connect(voter4).addMember(22, {value: 22 * (tokenPrice), }) );
-    // await token.writeCheckpoint(voter4.address, 0, 0, 22 ) ;
-
-
-    //  expect( await token.balanceOf(voter1.address)).to.equal(
-    //   "15000000000000000000" );
-
-      // expect(await samhita.isMemberAdded(voter1.address)).to.equal(true);
-
-   
-    // expect(await token.balanceOf(voter2.address)).to.equal(
-    //   "20000000000000000000"
-    // );
-    // expect(await token.balanceOf(voter3.address)).to.equal(
-    //   "17000000000000000000"
-    // );
-    // expect(await token.balanceOf(voter4.address)).to.equal(
-    //   "22000000000000000000"
-    // );
- 
-    // expect(await samhita.isMemberAdded(proposer.address)).to.equal(true);
-    // expect(await samhita.isMemberAdded(voter1.address)).to.equal(true);
-    // expect(await samhita.isMemberAdded(voter2.address)).to.equal(true);
-    // expect(await samhita.isMemberAdded(voter3.address)).to.equal(true);
-    // expect(await samhita.isMemberAdded(voter4.address)).to.equal(true);
-    // expect(await samhita.isMemberAdded(voter5.address)).to.equal(false);
-
-    // await expect(samhita.addMember(20)).to.be.revertedWith("Not enough value");
-
-    // const final = await ethers.provider.getBalance(samhita.address);
-    // console.log("----- final c b: ",final);
-
+    await samhita.connect(voter1).addMember(10, {
+      value: 10 * tokenPrice,
+    });
+    await samhita.connect(voter2).addMember(21, {
+      value: 21 * tokenPrice,
+    });
+    await samhita.connect(voter3).addMember(18, {
+      value: 18 * tokenPrice,
+    });
+    await samhita.connect(voter4).addMember(15, {
+      value: 15 * tokenPrice,
     });
 
+    expect(await token.balanceOf(proposer.address)).to.equal("20");
+    expect(await token.balanceOf(voter1.address)).to.equal("10");
+    expect(await token.balanceOf(voter4.address)).to.equal("15");
+
+    await token.writeCheckpoint(voter1.address, 0, 0, 10);
+    await token.writeCheckpoint(voter2.address, 0, 0, 21);
+    await token.writeCheckpoint(voter3.address, 0, 0, 18);
+    await token.writeCheckpoint(voter4.address, 0, 0, 15);
+
+    expect(await samhita.isMemberAdded(proposer.address)).to.equal(true);
+    expect(await samhita.isMemberAdded(voter1.address)).to.equal(true);
+    expect(await samhita.isMemberAdded(voter2.address)).to.equal(true);
+    expect(await samhita.isMemberAdded(voter3.address)).to.equal(true);
+    expect(await samhita.isMemberAdded(voter4.address)).to.equal(true);
+    expect(await samhita.isMemberAdded(voter5.address)).to.equal(false);
+
+    //------------------ create a proposal---------------------------------
+    const stakeAmount = await samhita.proposalStake();
+    // approve tokens
+    await token.connect(proposer).approve(samhita.address, stakeAmount);
+
+      await expect(
+        samhita.connect(proposer).propose(
+            [token.address],
+            [0],
+            ["execute(uint)"],
+            [ethers.utils.defaultAbiCoder.encode(["uint256"], [42])],
+            "Proposal of samhita DAO",
+            "template",
+            "bafybeifrwhe5h22blc33rgvcktxe3wedjq467caia23ce7toal4tym2doy",
+            { value: stakeAmount }
+          )
+      ).to.be.revertedWith("proposer votes below proposal threshold");
+
+    // delegate votes
+    await token.delegate(proposer.address);
+    console.log("Samhita contract balance after propose:", await ethers.provider.getBalance(samhita.address) );
+    const propBalance = await ethers.provider.getBalance(proposer.address);
+    console.log("proposer eth balance: ", propBalance);
+    const transx = await samhita
+      .connect(proposer)
+      .propose(
+        [token.address],
+        [0],
+        ["execute(uint)"],
+        [ethers.utils.defaultAbiCoder.encode(["uint256"], [42])],
+        "Proposal of samhita DAO",
+        "template",
+        "bafybeifrwhe5h22blc33rgvcktxe3wedjq467caia23ce7toal4tym2doy",
+        { value: stakeAmount }
+      );
+
+      await transx.wait();
+      console.log("proposal created...!");
+      const propBalanceAfter = await ethers.provider.getBalance(proposer.address);
+      console.log("proposer eth balance after (stake deducted): ", propBalanceAfter);
+
+    //   console.log("balance aftre stake:");
+    //   console.log(await ethers.provider.getBalance(proposer.address));
+      // console.log(transx);
+      // console.log("proposal created.....");
+  });
 });

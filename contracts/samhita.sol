@@ -11,7 +11,7 @@ contract Samhita {
     // 4% of 1000
     function quorumVotes() public pure returns (uint256) {
         return 40;
-    }   
+    }
 
     function proposalMaxOperations() public pure returns (uint256) {
         return 10;
@@ -77,7 +77,9 @@ contract Samhita {
     mapping(address => uint256) public latestProposalIds;
     mapping(address => uint256) public memberWithdrawAmount;
     mapping(uint256 => address) public proposalToNFTOwner; // mapping for NFT owner if proposal succeeded
-    mapping(address => bool) public receivedTemplateNFT;
+    mapping(address => bool) public receivedMemberNFT;
+    mapping(address => uint256) public memberVotes;
+    mapping(address => uint256) public memberProposals;
 
     event ProposalCreated(
         uint256 id,
@@ -105,12 +107,17 @@ contract Samhita {
     uint96 public proposalStake = 5000000000000000000; //5 ETH
     uint96 requiredTokens = 10; //  tokens required to be member
 
-    constructor(address timelock_, address token_, address templateNFT_) {
+    constructor(
+        address timelock_,
+        address token_,
+        address templateNFT_,
+        string memory _nftUri
+    ) {
         timelock = ITimelock(timelock_);
         token = ISamhitaToken(token_);
         templateNFT = ITemplateNFT(templateNFT_);
         guardian = msg.sender;
-        isMemberAdded[msg.sender] = true;
+        templateNFT.mintcreatorNFT(msg.sender, _nftUri);
     }
 
     function addMember(uint96 _tokens) public payable {
@@ -163,7 +170,6 @@ contract Samhita {
         );
         require(targets.length != 0, "some action must be there");
         require(targets.length <= proposalMaxOperations(), "too many actions");
-        token.transfer(address(this), proposalStake);
         // retrives latest proposalid submitted by msg.sender
         uint256 latestProposalId = latestProposalIds[msg.sender];
         if (latestProposalId != 0) {
@@ -201,7 +207,7 @@ contract Samhita {
             proposalFile
         );
         latestProposalIds[msg.sender] = proposalCount;
-
+        memberProposals[msg.sender] += 1;
         emit ProposalCreated(
             proposalCount,
             msg.sender,
@@ -228,12 +234,10 @@ contract Samhita {
             "Not a template proposal"
         );
 
-        // memberWithdrawAmount[proposals[_proposalId].creator] += proposalStake;
+        memberWithdrawAmount[proposals[_proposalId].creator] += proposalStake;
 
-
-          // Store the NFT owner in the mapping
-            proposalToNFTOwner[_proposalId] = proposals[_proposalId].creator;
-            receivedTemplateNFT[msg.sender] = true;
+        // Store the NFT owner in the mapping
+        proposalToNFTOwner[_proposalId] = proposals[_proposalId].creator;
 
         // fetches data assciated with proposal
         Proposal storage proposal = proposals[_proposalId];
@@ -251,28 +255,17 @@ contract Samhita {
             );
         }
         //record timestamp at which prop can be executed
-        proposal.eta = eta;  
+        proposal.eta = eta;
 
-         token.transfer(proposals[_proposalId].creator, proposalStake);
-
+        token.transfer(proposals[_proposalId].creator, proposalStake);
 
         // Template NFT -- if proposal is approved ; means succeeded
         //    mint NFT as proposal is succeed
-        if (receivedTemplateNFT[msg.sender] == false) {
-            templateNFT.mintTemplate(
-                proposals[_proposalId].creator,
-                proposals[_proposalId].proposalFile,
-                _proposalId
-            );
-          
-
-        }
-
-        // Returning stake as proposal succeeded
-        // address _member = proposals[_proposalId].creator;
-        // memberWithdrawAmount[_member] += proposalStake;
-        
-
+        templateNFT.mintTemplate(
+            proposals[_proposalId].creator,
+            proposals[_proposalId].proposalFile,
+            _proposalId
+        );
         emit ProposalQueued(_proposalId, eta);
     }
 
@@ -374,8 +367,8 @@ contract Samhita {
 
     function castVote(uint256 _proposalId, bool support) public {
         return _castVote(msg.sender, _proposalId, support);
-        
     }
+
     // updates the vote count and records the voter's receipt (record of vote) for the given proposal
     function _castVote(
         address voter,
@@ -399,16 +392,20 @@ contract Samhita {
         receipt.hasVoted = true;
         receipt.support = support;
         receipt.votes = votes;
+        memberVotes[msg.sender] += 1;
         emit VoteCast(voter, _proposalId, support, votes);
     }
 
-             // Function to fetch proposal.forVotes
-   function getForVotes(uint proposalId) public view returns (uint) {
-    require(proposalId > 0 && proposalId <= proposalCount, "Invalid proposal ID");
-    console.log(proposals[proposalId].forVotes);
-    return proposals[proposalId].forVotes;
-   }
- 
+    // Function to fetch proposal.forVotes
+    function getForVotes(uint proposalId) public view returns (uint) {
+        require(
+            proposalId > 0 && proposalId <= proposalCount,
+            "Invalid proposal ID"
+        );
+        console.log(proposals[proposalId].forVotes);
+        return proposals[proposalId].forVotes;
+    }
+
     // function getAllTemplates() public view returns (Proposal[] memory) {
     //     uint totalTemplates = 0;
     //     Proposal[] memory allProposals = new Proposal[](totalTemplates);
@@ -440,6 +437,19 @@ contract Samhita {
     //     }
     //     return allProposals;
     // }
+
+    function claimMemberNft(string memory _nftUri) public {
+        if (receivedMemberNFT[msg.sender] == false) {
+            if (
+                memberProposals[msg.sender] >= 2 && memberVotes[msg.sender] >= 5
+            ) {
+                {
+                    templateNFT.mintMemberNFT(msg.sender, _nftUri);
+                    receivedMemberNFT[msg.sender] = true;
+                }
+            }
+        }
+    }
 
     function add256(uint256 a, uint256 b) internal pure returns (uint256) {
         uint256 c = a + b;

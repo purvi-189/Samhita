@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -7,13 +6,13 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-    contract TemplateNFT is ERC721, ERC721URIStorage, Ownable {
+contract TemplateNFT is ERC721, ERC721URIStorage, Ownable {
     constructor() ERC721("MyTemplate", "MTL") {}
 
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIdCounter;
     Counters.Counter private _creatorIdCounter;
-    Counters.Counter private  _memberIdCounter;
+    Counters.Counter private _memberIdCounter;
 
     struct TemplateData {
         uint tokenIds;
@@ -21,13 +20,12 @@ import "@openzeppelin/contracts/utils/Counters.sol";
         string tokenIpfsUri;
     }
 
-    struct creatorData{
-        uint  creatorId;
+    struct creatorData {
+        uint creatorId;
         address owner;
         string badgeIpfsUri;
-
     }
-    struct memberData{
+    struct memberData {
         uint memberId;
         address member;
         string memberIpfsUri;
@@ -42,22 +40,28 @@ import "@openzeppelin/contracts/utils/Counters.sol";
     mapping(uint => creatorData) public creatorIdTocreatorData;
 
     // member NFT
-    mapping(address => bool) public memberNFTReceived;
-
     mapping(address => uint[]) public userTomemberNFTs;
     mapping(uint => memberData) public memberIdTomemberData;
 
-
+    address samhitaAddress;
 
     function safeMint(address to, uint256 tokenId, string memory uri) public {
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
     }
 
-       function safeMintOwnership(address to, uint256 creatorId, string memory uri) public {
-        // _safeMintOwnership(to,creatorId );
-        _safeMint(to, creatorId);
-        _setTokenURI(creatorId, uri);
+    // function safeMintOwnership(
+    //     address to,
+    //     uint256 creatorId,
+    //     string memory uri
+    // ) public {
+    //     // _safeMintOwnership(to,creatorId );
+    //     _safeMint(to, creatorId);
+    //     _setTokenURI(creatorId, uri);
+    // }
+
+    function setSamhitaAddress(address _address) public onlyOwner {
+        samhitaAddress = _address;
     }
 
     function mintTemplate(
@@ -65,6 +69,10 @@ import "@openzeppelin/contracts/utils/Counters.sol";
         string memory _uri,
         uint _proposalId
     ) public {
+        require(
+            msg.sender == samhitaAddress,
+            "only samhita contract can call this function"
+        );
         uint256 tokenId = _tokenIdCounter.current();
         proposalIdToTempId[_proposalId] = tokenId;
 
@@ -74,13 +82,11 @@ import "@openzeppelin/contracts/utils/Counters.sol";
         idToTemplateData[tokenId] = TemplateData(tokenId, _to, _uri);
     }
 
-
-    function mintcreatorNFT(address _to, string memory _uri)public onlyOwner() {
-      
+    function mintcreatorNFT(address _to, string memory _uri) external {
         uint256 creatorId = _creatorIdCounter.current(); // Get the unique creator ID
         _creatorIdCounter.increment();
 
-        safeMintOwnership(_to, creatorId, _uri);
+        safeMint(_to, creatorId, _uri);
         // Store creator data associated with the creatorId.
         creatorIdTocreatorData[creatorId] = creatorData(creatorId, _to, _uri);
 
@@ -89,36 +95,25 @@ import "@openzeppelin/contracts/utils/Counters.sol";
     }
 
     // member NFT
-
     function mintMemberNFT(address _to, string memory _uri) public {
-            
         uint256 memberId = _memberIdCounter.current(); // Get the unique creator ID
         _memberIdCounter.increment();
-         safeMintOwnership(_to, memberId, _uri);
+        safeMint(_to, memberId, _uri);
 
         //   Store creator data associated with the creatorId.
         memberIdTomemberData[memberId] = memberData(memberId, _to, _uri);
 
         // Add the creatorId to the user's list of owned creator NFTs.
         userTomemberNFTs[_to].push(memberId);
-        memberNFTReceived[_to] = true;
-
     }
 
-
     // Function to retrieve all creator NFTs owned by a user.
-    function getUsercreatorNFTs(address _user) public view returns (uint[] memory) {
+    function getUsercreatorNFTs(
+        address _user
+    ) public view returns (uint[] memory) {
         return userTocreatorNFTs[_user];
     }
 
-
-
-     // Function to retrieve creator data for a specific creator NFT.
-    function getcreatorData(uint _creatorId) public view returns (creatorData memory) {
-        return creatorIdTocreatorData[_creatorId];
-    }
-
-   
     // The following functions are overrides required by Solidity.
 
     function _burn(
@@ -139,21 +134,16 @@ import "@openzeppelin/contracts/utils/Counters.sol";
         return templateIdToUser[_user];
     }
 
-    function getTemplateData(
-        uint _templateId
-    ) public view returns (TemplateData memory) {
-        return idToTemplateData[_templateId];
-    }
-
     function getTemplateDetails(
         uint _templateId
     ) public view returns (address) {
         return idToTemplateData[_templateId].creator;
     }
 
-     // Override supportsInterface to specify which base contract's function to use
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, ERC721URIStorage) returns (bool) {
+    // Override supportsInterface to specify which base contract's function to use
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual override(ERC721, ERC721URIStorage) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
-
 }

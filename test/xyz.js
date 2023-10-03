@@ -3,43 +3,6 @@
 //   // start
 
 
-//     // create a proposal ------------------------------------------------------------------------------------
-//     const stakeAmount = await samhita.proposalStake();
-//     // approve tokens
-//     await token.connect(proposer).approve(samhita.address, stakeAmount);
-
-//     // check condition for the threshold
-//     await expect(
-//       samhita
-//         .connect(proposer)
-//         .propose(
-//           ["0x683E7C7cD4DD8a93D921Efe53E075b21cd58D271"],
-//           [0],
-//           ["execute(uint)"],
-//           [ethers.utils.defaultAbiCoder.encode(["uint256"], [42])],
-//           "Proposal of samhita DAO",
-//           "template",
-//           "bafybeifrwhe5h22blc33rgvcktxe3wedjq467caia23ce7toal4tym2doy",
-//           { value: stakeAmount }
-//         )
-//     ).to.be.revertedWith("proposer votes below proposal threshold");
-
-//     // delegate votes
-//     await token.delegate(proposer.address);
-
-//     const transx = await samhita
-//       .connect(proposer)
-//       .propose(
-//         ["0x683E7C7cD4DD8a93D921Efe53E075b21cd58D271"],
-//         [0],
-//         ["execute(uint)"],
-//         [ethers.utils.defaultAbiCoder.encode(["uint256"], [42])],
-//         "Proposal of samhita DAO",
-//         "template",
-//         "bafybeifrwhe5h22blc33rgvcktxe3wedjq467caia23ce7toal4tym2doy",
-//         { value: stakeAmount }
-//       );
-  
 //       console.log("++++ NFT +++++");
 
 //       const isRcd = await samhita.receivedTemplateNFT[proposer.address];
